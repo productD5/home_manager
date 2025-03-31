@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "accounts", #今回のapp
+    "rest_framework" #add rest
 ]
 
 MIDDLEWARE = [
@@ -103,9 +105,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "ja"     # 日本語
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Asia/Tokyo" # 日本標準時（JST, UTC+9）
+
 
 USE_I18N = True
 
