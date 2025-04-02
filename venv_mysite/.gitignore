@@ -1,0 +1,16 @@
+# Python virtual environment
+venv/
+venv_mysite/
+
+# Byte-compiled / cached
+__pycache__/
+*.pyc
+*.pyo
+
+# Django-specific
+db.sqlite3
+/media/
+staticfiles/
+
+# Environment settings
+.env
