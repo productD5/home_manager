@@ -1,10 +1,17 @@
-/Lib
+# 仮想環境を除外
+venv/
+venv_mysite/
 
-#/Scriptsfile
-activate
-*.bat
-*.ps1
-*.exe
-*.cfg
-# Environment settings
+# Python キャッシュを除外
+__pycache__/
+*.pyc
+*.pyo
+
+# Django 関連の不要ファイルを除外
+/media/
+staticfiles/
+
+# 環境変数ファイルを除外（雛形は残す）
 .env
+!.env.example
+
