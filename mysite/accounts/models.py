@@ -8,6 +8,7 @@ class User(models.Model):
     password = models.CharField(max_length=20)
     nickname = models.CharField(max_length=50)
     comment = models.CharField(max_length=100, blank=True ) #空白ok
+    
 
 def in_30_days():
     return timezone.now() + timedelta(days=30) #現在の時間から30日足したものを返す

@@ -32,6 +32,3 @@ class LoginSerializer(serializers.Serializer):
             
             else:
                 raise serializers.ValidationError('ログイン失敗')
-            
-
-            

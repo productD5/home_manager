@@ -46,9 +46,28 @@ class LoginView(GenericAPIView):
             #UserオブジェクトをDBから取得
             user = User.objects.get(user_id = serializer.validated_data['user_id'])
             user_id = serializer.validated_data['user_id']
-            
+
             #トークンを生成
             token = AccessToken.create(user)
             return Response({'detail':"ログインが成功しました",'error':0, 'token':token.token, 'user_id': user_id})
         return Response({'error':1},status=HTTP_400_BAD_REQUEST)
+    
+
+class UserDetailView(APIView):
+    def get(self,reqest, user_id):
+        #ユーザー情報の取得
+        user = User.objects.filter(user_id = user_id).first #一件目を取得
+        if not user:
+            #userが存在しない場合
+            return Response({"messerge":"Not User found"},stats=404)
         
+        response_date ={
+            "message": "User details by user_id",
+            "user":{
+                "user_id": User.user_id,
+                "nickname": User.nickname,
+                "comment" :User.comment
+            }
+        }
+
+        return Response(response_date,status=200)
