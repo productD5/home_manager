@@ -56,7 +56,7 @@ class LoginView(GenericAPIView):
 class UserDetailView(APIView):
     def get(self,reqest, user_id):
         #ユーザー情報の取得
-        user = User.objects.filter(user_id = user_id).first #一件目を取得
+        user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う)
         if not user:
             #userが存在しない場合
             return Response({"messerge":"Not User found"},stats=404)
@@ -64,10 +64,38 @@ class UserDetailView(APIView):
         response_date ={
             "message": "User details by user_id",
             "user":{
-                "user_id": User.user_id,
-                "nickname": User.nickname,
-                "comment" :User.comment
+                "user_id": user.user_id,
+                "nickname": user.nickname,
+                "comment" :user.comment
             }
         }
 
         return Response(response_date,status=200)
+
+
+class UserUpdateView(APIView):
+    def patch(self ,request, user_id):
+        #ユーザー情報取得
+        user= User.objects.filter(user_id = user_id).first()
+
+        if not user:
+            #ユーザーが存在しない場合
+            return Response({"message": "No User found"}, status=404)
+        
+        if user_id != user.user_id:
+            #異なるIDだった場合
+            return Response({"message": "No permission for Update"}, status=403)
+        
+        serialazer = UserUpdateView(user, data=request.data, partial=True)
+        #データが正しいかの検証(値が正しいか等)
+        if serialazer.is_valid():
+            serialazer.save()
+
+            respose_data = {
+                "message" : "User successFully updated",
+                "user": {
+                    "nickname": user.nickname,
+                    "comment" : user.comment
+                }
+            }
+            return Response(respose_data, status=200)

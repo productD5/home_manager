@@ -32,3 +32,13 @@ class LoginSerializer(serializers.Serializer):
             
             else:
                 raise serializers.ValidationError('ログイン失敗')
+            
+class UserUpdateSerializer(serializers.Serializer):
+    nickname = serializers.CharField(max_length=30, allow_blamk=True)
+    comment = serializers.CharField(max_length=100, allow_blank=True)
+
+    def update(self, instance, validated_data):
+        instance.nickname = validated_data.get('nickname',instance.nickname)
+        instance.comment = validated_data.get('nickname',instance.comment)
+        instance.save()
+        return instance
