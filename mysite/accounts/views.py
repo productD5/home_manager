@@ -89,6 +89,7 @@ class UserUpdateView(APIView):
         serialazer = UserUpdateView(user, data=request.data, partial=True)
         #データが正しいかの検証(値が正しいか等)
         if serialazer.is_valid():
+            #形式の保存
             serialazer.save()
 
             respose_data = {
@@ -99,3 +100,12 @@ class UserUpdateView(APIView):
                 }
             }
             return Response(respose_data, status=200)
+        
+        else: 
+            #エラーメッセージの表示
+            error_message = serialazer.error.get('non_field_error',['User updation failed'])[0]
+            return Response({"message": "User updated failed","cause": error_message}, status=400)
+        
+    #ポストが許可されていなかった場合
+    def post(self ,request, user_id):
+        return Response({"message": "Methop not allowed"}, status=400)
