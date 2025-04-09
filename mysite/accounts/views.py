@@ -1,12 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
-from .serializers import RegisterSerializer,LoginSerializer
+from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer
 from .models import User,AccessToken
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny 
 from rest_framework.generics import GenericAPIView
-
 
 class RegisterView(APIView):
     """新規登録API"""
@@ -54,6 +53,7 @@ class LoginView(GenericAPIView):
     
 
 class UserDetailView(APIView):
+    """ユーザー情報取得API"""
     def get(self,reqest, user_id):
         #ユーザー情報の取得
         user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う)
@@ -74,6 +74,7 @@ class UserDetailView(APIView):
 
 
 class UserUpdateView(APIView):
+    """ユーザー情報更新API"""
     def patch(self ,request, user_id):
         #ユーザー情報取得
         user= User.objects.filter(user_id = user_id).first()
@@ -86,7 +87,7 @@ class UserUpdateView(APIView):
             #異なるIDだった場合
             return Response({"message": "No permission for Update"}, status=403)
         
-        serialazer = UserUpdateView(user, data=request.data, partial=True)
+        serialazer =  UserUpdateSerializer(user, data=request.data, partial=True)
         #データが正しいかの検証(値が正しいか等)
         if serialazer.is_valid():
             #形式の保存
@@ -109,3 +110,17 @@ class UserUpdateView(APIView):
     #ポストが許可されていなかった場合
     def post(self ,request, user_id):
         return Response({"message": "Methop not allowed"}, status=400)
+    
+
+class CloseAccountView(APIView):
+    """ユーザー削除API"""
+    def post(self, request, user_id):
+        #アカウント削除処理
+        try:
+            user = User.objects.filter(user_id=user_id).first()
+            user.delete()
+            
+        except User.DoesNotExist:
+            raise Response("No User found")
+            
+        return Response({"message": "Account and user successfully removed"}, status=200)
