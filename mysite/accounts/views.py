@@ -12,8 +12,7 @@ class RegisterView(APIView):
     @staticmethod
     def post(request, *args, **kwargs):
         print(request.data)
-        serializer = RegisterSerializer(data=request.data) #シリアライザをインスタンス化インスタンス化
-
+        serializer = RegisterSerializer(data=request.data) #シリアライザをインスタンス化
         if serializer.is_valid(raise_exception=True):
             # パスワードと確認パスワードが一致しない場合
             if serializer.validated_data['password'] != request.data['password_confirmation']:
@@ -60,17 +59,17 @@ class UserDetailView(APIView):
         if not user:
             #userが存在しない場合
             return Response({"messerge":"Not User found"},stats=404)
-        
-        response_date ={
-            "message": "User details by user_id",
-            "user":{
+        else:
+            response_date ={
+                "message": "User details by user_id",
+                "user":{
                 "user_id": user.user_id,
                 "nickname": user.nickname,
                 "comment" :user.comment
+                }
             }
-        }
+            return Response(response_date,status=200)
 
-        return Response(response_date,status=200)
 
 
 class UserUpdateView(APIView):
