@@ -35,6 +35,11 @@ const createAppRouter = (queryClient: QueryClient) =>
         lazy: () => import("./routes/welcome").then(convert(queryClient)),
     },
     {
+        path: paths.home.path,
+        hydrateFallbackElement : <Spinner/>,
+        lazy: () => import("./routes/app/home").then(convert(queryClient)),
+    },
+    {
       path: "*",
       lazy: () => import("./routes/not-found").then(convert(queryClient)),
     },

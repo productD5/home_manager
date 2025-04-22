@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "accounts", #今回のapp
-    "rest_framework" #add rest
+    "rest_framework" ,#add rest
+    "corsheaders", #add corsheaders 別のサーバーからのアクセスを許可するために必要
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', #add corsheaders
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -114,6 +116,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+CORS_ALLOW_ALL_ORIGINS = True #add corsheaders　# すべてのオリジンを許可する設定　# 本番環境では、特定のオリジンのみを許可するように設定してください
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

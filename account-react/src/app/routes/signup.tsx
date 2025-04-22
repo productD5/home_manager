@@ -1,7 +1,72 @@
+import React , { useState } from 'react';
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import Header from '../../components/ui/header';
+import { GoArrowLeft } from "react-icons/go";
+import { paths } from '../../config/paths';
+import { Link } from 'react-router-dom';
 const Signup = () =>{
-    return(
-        <text> 新規登録 </text>
-    );
-};
+        const [user_id, setUser_Id] = useState('')
+        const [password, setPassword] = useState('')
+        const [password_confirmation, setPassword_Confirm] = useState('')
+        const [nickname, setNickname] = useState('') 
+
+        const navigate = useNavigate();
+
+        const [error, setError] = useState<string | null>(null);
+
+        const handleSubmit = async (e:React.FormEvent) => {
+            e.preventDefault(); //フォームの送信をキャンセル
+
+            if (password !== password_confirmation) {
+                // パスワードと確認用パスワードが一致しない場合の処理
+                alert('パスワードが一致しません');
+                return;
+            }
+            try {
+                const response = await axios.post('http://localhost:8000/accounts/signup/', {
+                    user_id: user_id,
+                    nickname: nickname,
+                    password: password,
+                    password_confirmation: password_confirmation
+                });
+                alert('アカウントが作成されました');
+                navigate('/login');
+            } catch (error){
+                setError('アカウントの作成に失敗しました');
+            }
+        };
+            return (
+                <>
+                <Header/>
+                <div className='main'>
+                <Link to={paths.Welcome.getHref()}>
+                    <GoArrowLeft/> 
+                </Link>
+                    <h1>アカウント新規登録</h1>
+                    
+                    <form onSubmit={handleSubmit}>
+                        <div>
+                            <label htmlFor="user_id">ユーザーID:</label>
+                            <input type="text" id="user_id" value={user_id} onChange={(e) => setUser_Id(e.target.value)} />
+                        </div>
+                        <div>
+                            <label htmlFor="nickname">ニックネーム:</label>
+                            <input type="text" id="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+                        </div>
+                        <div>
+                            <label htmlFor="password">パスワード:</label>
+                            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        </div>
+                        <div>
+                            <label htmlFor="password_confirm">パスワード確認:</label>
+                            <input type="password" id="password_confirm" value={password_confirmation} onChange={(e) => setPassword_Confirm(e.target.value)} />
+                        </div>
+                        <button type="submit">登録</button>
+                    </form>
+                </div>
+                </>
+            );
+        };
 
 export default Signup

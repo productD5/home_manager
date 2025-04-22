@@ -1,4 +1,33 @@
-.back-box {
-background-color:rgb(175, 184, 193);
 
-}
+  .main {
+    width: 100%;
+    height: 100vh;
+    display: flex;             
+    justify-content: center;
+    background-color: rgb(220, 219, 219);
+  }
+  
+  .back-box {
+    display: flex;
+    flex-direction: column;  /* 縦並び */
+    align-items: center;     /*  中央揃え */
+    justify-content: center;
+    gap: 16px;  
+    width: 600px;
+    height: 400px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin: 40px;
+  }
+  .button{
+    color: #ffffff;
+    background-color: #333;
+    border-radius: 8px;
+    width: 200px;        
+    height: 60px;        
+    font-size: 18px;
+  }
+
+  
+
+  

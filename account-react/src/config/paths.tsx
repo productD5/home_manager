@@ -11,5 +11,9 @@ export const paths = {
     path: '/sign-up',
     getHref: () => '/sign-up',
   },
+  home: {
+    path: '/home',
+    getHref: () => '/home',
+  },
 } as const;
 
