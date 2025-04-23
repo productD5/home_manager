@@ -1,0 +1,42 @@
+.main{
+    display: flex;
+    justify-content: center; /* 縦中央揃え */
+}
+.backbox{
+    display: flex;
+    align-items: center; /* 横中央揃え */
+    height: 50vh;
+    width: 50vh;
+    background-color: #f0f0f0;
+    flex-direction: column; /* 縦並び */
+    margin: 20px;
+    border-radius: 10px;
+}
+.back-link{
+    display: flex;
+    margin-right: 70%;
+    color : #000;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.back-link:hover{
+    background-color: #444;
+}
+
+.inputtext{
+    display: flex;
+    flex-direction: column;
+    gap:4px
+}
+.submitButton{
+    margin: 40px;
+    color: #ffffff;
+    background-color: #333;
+    border-radius: 8px;
+    width: 200px;        
+    height: 60px;        
+    font-size: 18px;
+}
