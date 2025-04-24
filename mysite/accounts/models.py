@@ -9,6 +9,15 @@ class User(models.Model):
     nickname = models.CharField(max_length=50)
     comment = models.CharField(max_length=100, blank=True ) #空白ok
     
+class HomeMoney(models.Model):
+    #紐づけるユーザー
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    date=models.DateField(default=timezone.now) #日付
+    category = models.CharField(max_length=20) #カテゴリ
+    amount = models.IntegerField(default=0) #金額
+    memo = models.CharField(max_length=100, blank=True) #メモ
+
 
 def in_30_days():
     return timezone.now() + timedelta(days=30) #現在の時間から30日足したものを返す

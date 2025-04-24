@@ -6,7 +6,7 @@ import { GoArrowLeft } from "react-icons/go";
 import { paths } from '../../config/paths';
 import { Link } from 'react-router-dom';
 
-import '../../components/style/singup.css';
+import '../../components/style/from.css';
 
 const Signup = () =>{
         const [user_id, setUser_Id] = useState('')

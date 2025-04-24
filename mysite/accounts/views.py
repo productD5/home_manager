@@ -2,13 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
 from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer
-from .models import User,AccessToken
+from .models import User,AccessToken, HomeMoney
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny 
 from rest_framework.generics import GenericAPIView
 
 class RegisterView(APIView):
-    """新規登録API"""
+    """新規登録"""
     @staticmethod
     def post(request, *args, **kwargs):
         print(request.data)
@@ -33,7 +33,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
     
 class LoginView(GenericAPIView):
-    """ログインApi"""
+    """ログイン"""
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
@@ -52,7 +52,7 @@ class LoginView(GenericAPIView):
     
 
 class UserDetailView(APIView):
-    """ユーザー情報取得API"""
+    """ユーザー情報取得"""
     def get(self,reqest, user_id):
         #ユーザー情報の取得
         user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う)
@@ -73,7 +73,7 @@ class UserDetailView(APIView):
 
 
 class UserUpdateView(APIView):
-    """ユーザー情報更新API"""
+    """ユーザー情報更新"""
     def patch(self ,request, user_id):
         #ユーザー情報取得
         user= User.objects.filter(user_id = user_id).first()
@@ -112,7 +112,7 @@ class UserUpdateView(APIView):
     
 
 class CloseAccountView(APIView):
-    """ユーザー削除API"""
+    """アカウント削除"""
     def post(self, request, user_id):
         #アカウント削除処理
         try:
@@ -123,3 +123,17 @@ class CloseAccountView(APIView):
             raise Response("No User found")
             
         return Response({"message": "Account and user successfully removed"}, status=200)
+    
+class HomeMoneyView(APIView):
+    """家計簿"""
+    def get(self, request, user_id):
+        #ユーザー情報取得
+        user = User.objects.filter(user_id=user_id).first()
+        if not user:
+            return Response({"message": "No User found"}, status=404)
+        
+        #家計簿情報取得
+        home_money = HomeMoney.objects.filter(user=user).values('date', 'category', 'amount', 'memo')
+        if not home_money:
+            return Response({"message": "No HomeMoney found"}, status=404)
+        return Response(home_money, status=200)

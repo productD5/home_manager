@@ -5,6 +5,7 @@ import Header from '../../components/ui/header';
 import { GoArrowLeft } from "react-icons/go";
 import { Link } from 'react-router-dom';
 import { paths } from '../../config/paths';
+import '../../components/style/from.css';
 
 
 const Login = () =>{
@@ -21,12 +22,17 @@ const Login = () =>{
             password: password
         })
         .then((response) => {
-            localStorage.setItem('user_id', response.data.user_id);
-            alert('ログイン成功');
-            navigate('/home'); //ログイン成功後にリダイレクト
+            if (response.status === 200) {
+            // ログイン成功時の処理
+                localStorage.setItem('user_id', response.data.user_id);
+                alert('ログイン成功');
+                navigate('/home'); //ログイン成功後にリダイレクト
+            }
+            else {
+                alert('ログインに失敗しました。ユーザーIDまたはパスワードが正しいか確認してください。');
+            }
         }).catch((error) => {
-            console.error('Login error:', error);
-            setError('ログインに失敗しました。ユーザーIDまたはパスワードが正しいか確認してください。');
+                setError('ログインに失敗しました。');
         });
     };
     return(
@@ -58,5 +64,4 @@ const Login = () =>{
         </>
     );
 };
-
 export default Login

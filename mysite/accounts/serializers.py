@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import User
-
+from .models import HomeMoney
 class  RegisterSerializer(serializers.ModelSerializer):
     #userメタ情報
     class Meta:
@@ -43,3 +43,11 @@ class UserUpdateSerializer(serializers.Serializer):
         instance.save()
         return instance
     
+class UserHomeMoneySerializer(serializers.Serializer):
+    date = serializers.DateField()
+    category = serializers.CharField(max_length=20)
+    amount = serializers.IntegerField()
+    memo = serializers.CharField(max_length=100, allow_blank=True)
+
+    def create(self, validated_data):
+        return  HomeMoney.objects.create(**validated_data)
