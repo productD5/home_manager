@@ -2,4 +2,4 @@ django
 markdown
 django-filter
 djangorestframework
-django-cors-headers = 4.7.0
+django-cors-headers
