@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "accounts", #今回のapp
+    "accounts", #認証アプリ
+    "home_manager", #家計簿アプリ
     "rest_framework" ,#add rest
     "corsheaders", #add corsheaders 別のサーバーからのアクセスを許可するために必要
 ]
