@@ -123,17 +123,3 @@ class CloseAccountView(APIView):
             raise Response("No User found")
             
         return Response({"message": "Account and user successfully removed"}, status=200)
-    
-class HomeMoneyView(APIView):
-    """家計簿"""
-    def get(self, request, user_id):
-        #ユーザー情報取得
-        user = User.objects.filter(user_id=user_id).first()
-        if not user:
-            return Response({"message": "No User found"}, status=404)
-        
-        #家計簿情報取得
-        home_money = HomeMoney.objects.filter(user=user).values('date', 'category', 'amount', 'memo')
-        if not home_money:
-            return Response({"message": "No HomeMoney found"}, status=404)
-        return Response(home_money, status=200)

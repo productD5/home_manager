@@ -8,15 +8,6 @@ class User(models.Model):
     password = models.CharField(max_length=20)
     nickname = models.CharField(max_length=50)
     comment = models.CharField(max_length=100, blank=True ) #空白ok
-    
-class HomeMoney(models.Model):
-    #紐づけるユーザー
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    date=models.DateField(default=timezone.now) #日付
-    category = models.CharField(max_length=20) #カテゴリ
-    amount = models.IntegerField(default=0) #金額
-    memo = models.CharField(max_length=100, blank=True) #メモ
 
 
 def in_30_days():
@@ -26,7 +17,7 @@ class AccessToken(models.Model):
     #紐づけるユーザー
     user = models.ForeignKey(User,on_delete=models.CASCADE)
 
-    #アクセストークン(sha1でハッシュ化)
+    #アクセストークン(最大40文字)
     token = models.CharField(max_length=40)
 
     #アクセス日時
@@ -47,6 +38,7 @@ class AccessToken(models.Model):
         #トークンの作成(user_id、pasword、システムの日付のハッシュ値とする)
         dt = timezone.now()
         str = user.user_id + user.password + dt.strftime('%Y%m%d%H%M%S%f')
+        #SHA1でハッシュ化
         hash = hashlib.sha1(str.encode('utf-8')).hexdigest()
 
         #DBに追加情報を記録
