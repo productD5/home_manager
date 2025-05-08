@@ -25,6 +25,6 @@ class HomeMoneyUpdateSerializer(serializers.ModelSerializer):
         instance.money = validated_data.get('money', instance.money)
         instance.category = validated_data.get('category', instance.category)
         instance.title = validated_data.get('title', instance.title)
-        instance.money_comment = validated_data.get('manage_comment', instance.money_comment)
+        instance.money_comment = validated_data.get('money_comment', instance.money_comment)
         instance.save()
         return instance
