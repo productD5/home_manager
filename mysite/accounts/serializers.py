@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import User
+
+#ユーザー登録シリアライザ
 class  RegisterSerializer(serializers.ModelSerializer):
     #userメタ情報
     class Meta:
@@ -12,7 +14,8 @@ class  RegisterSerializer(serializers.ModelSerializer):
         def create(self, validated_data):
             user = User.objects.create_user(**validated_data)
             return user
-    
+        
+#ユーザーログインシリアライザ
 class LoginSerializer(serializers.Serializer):
     #入力
     user_id = serializers.CharField(max_length=255,write_only=True)
@@ -33,6 +36,8 @@ class LoginSerializer(serializers.Serializer):
             else:
                 raise serializers.ValidationError('ログイン失敗')
             
+
+#ユーザー情報更新シリアライザ
 class UserUpdateSerializer(serializers.Serializer):
     nickname = serializers.CharField(max_length=30, allow_blank=True)
     comment = serializers.CharField(max_length=100, allow_blank=True)
