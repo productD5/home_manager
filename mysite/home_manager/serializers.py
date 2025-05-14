@@ -16,15 +16,21 @@ class HomeMoneyRegistrSerializer(serializers.ModelSerializer):
 
 #家計簿更新
 class HomeMoneyUpdateSerializer(serializers.ModelSerializer):
-    money = serializers.IntegerField(required=False)
+    money = serializers.IntegerField(required=False , min_value=0)
     category = serializers.CharField(max_length=20)
     title = serializers.CharField(max_length=20)
     money_comment = serializers.CharField(max_length=100, required=False)
 
     def update(self, instance, validated_data):
-        instance.money = validated_data.get('money', instance.money)
-        instance.category = validated_data.get('category', instance.category)
-        instance.title = validated_data.get('title', instance.title)
-        instance.money_comment = validated_data.get('money_comment', instance.money_comment)
-        instance.save()
-        return instance
+            for attr, value in validated_data.items():
+                if attr == 'money':
+                    if value < 0:
+                        raise serializers.ValidationError({'money': '金額は0以上でなければなりません。'})
+                setattr(instance, attr, value)
+
+            try: 
+                instance.save()
+            except Exception as e: 
+                raise serializers.ValidationError({'error':f"Error updating instance: {str(e)}"})
+    
+            return instance

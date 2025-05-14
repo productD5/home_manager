@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class HomeAnagerConfig(AppConfig):
+class HomeManagerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'home_anager'
+    name = 'home_manager'
