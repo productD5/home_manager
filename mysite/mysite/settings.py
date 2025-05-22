@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "accounts", #認証アプリ
     "home_manager", #家計簿アプリ
     "rest_framework" ,#add rest
+    "rest_framework.authtoken", #add rest
     "corsheaders", #add corsheaders 別のサーバーからのアクセスを許可するために必要
 ]
 
@@ -82,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'home_manager', #DB名
-        'USER':'daigo',
-        'PASSWORD':'auth',
+        'USER':'myapp',
+        'PASSWORD':'Myapp5##',
         
     }
 }
@@ -131,3 +132,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.User' #ユーザーモデルの指定
+
+DEBUG = True
