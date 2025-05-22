@@ -2,8 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
 from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer
-from .models import User,AccessToken
-from rest_framework.viewsets import ModelViewSet
+from .models import User
 from rest_framework.permissions import AllowAny 
 from rest_framework.generics import GenericAPIView
 from rest_framework.authentication import TokenAuthentication
@@ -51,7 +50,6 @@ class LoginView(GenericAPIView):
                 return Response({'error': 4, 'message': f'Token generation failed: {str(e)}'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response({'detail': "ログインが成功しました", 'error': 0, 'token': token.token, 'user_id': user.user_id})
-
         return Response({'error': 3, 'message': 'Invalid credentials'}, status=HTTP_400_BAD_REQUEST)
     
 
