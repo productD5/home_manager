@@ -8,3 +8,6 @@ class home_money(models.Model):
     category = models.CharField(max_length=20)
     title = models.CharField(max_length=20)
     money_comment = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"{self.user_id} - {self.money_id} - {self.category} - {self.title} - {self.money}"
