@@ -24,6 +24,7 @@ const Login = () => {
       .then((response) => {
         if (response.status === 200) {
           // ログイン成功時の処理
+          localStorage.setItem("nickname", response.data.nickmane);
           localStorage.setItem("user_id", response.data.user_id);
           alert("ログイン成功");
           navigate("/home"); //ログイン成功後にリダイレクト
