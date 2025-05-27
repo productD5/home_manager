@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/ui/header";
 import { GoArrowLeft } from "react-icons/go";
 import { Link } from "react-router-dom";
-import { paths } from "@/config/paths";
-import "@/components/style/form.css";
+import { paths } from "../../config/paths";
+import "@/components/styles/form.css";
 
 const Login = () => {
   const [user_id, setUser_Id] = useState("");
