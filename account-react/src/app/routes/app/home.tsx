@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import Header from "@/components/ui/header";
+import "@/components/styles/home.css";
+import { FaPen } from "react-icons/fa";
 interface User {
   user_id: string;
   nickname: string;
@@ -72,18 +74,24 @@ const Home = () => {
         console.error("fetchに失敗しました:", error);
       });
   }, []);
-
+  const navgeteEdit = () => {
+    navigate("/edit");
+  };
   return (
     <>
+      <Header />
       <h2>ようこそ、{user?.nickname}さん</h2>
       <h3>最近の支出</h3>
 
       {userHomeData.map((data, index) => (
         <div key={index} className="home-data">
-          <h4>{data.category}</h4>
-          <p>金額: {data.money}円</p>
-          <p>タイトル: {data.title}</p>
-          <p>コメント: {data.money_comment}</p>
+          <div className="home-box">
+            <h4>{data.category}</h4>
+            <p>金額: {data.money}円</p>
+            <p>タイトル: {data.title}</p>
+            <p>コメント: {data.money_comment}</p>
+            <FaPen onClick={navgeteEdit} />
+          </div>
         </div>
       ))}
     </>
