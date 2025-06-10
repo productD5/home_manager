@@ -1,0 +1,33 @@
+.home-data {
+    display: flex;              
+    background-color: #f0f0f0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    
+}
+.home-box{
+    width: 100%;
+    max-width: 1200px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    box-sizing: border-box;
+}
+.addbutton{
+    position: fixed;
+    bottom: 20px;
+    right: 100px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 80px;
+
+
+}

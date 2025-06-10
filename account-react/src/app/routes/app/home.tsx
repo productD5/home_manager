@@ -3,13 +3,27 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "@/components/ui/header";
 import "@/components/styles/home.css";
+
 import { FaPen } from "react-icons/fa";
+import { IoIosAddCircle } from "react-icons/io";
+
+import ModalModel from "@/components/ui/ModalModel";
+import EditMoneyForm from "@/features/home/EditMoneyForm";
+import AddMoneyForm from "@/features/home/AddMoneyForm";
+
 interface User {
   user_id: string;
   nickname: string;
   email: string;
   comment: string;
 }
+
+type MoneyData = {
+  money: number;
+  category: string;
+  title: string;
+  money_comment: string;
+};
 const Home = () => {
   const userHomeData = [
     {
@@ -44,10 +58,47 @@ const Home = () => {
     },
   ];
   const [user, setUser] = useState<User | null>(null);
+  // 選択されたデータを管理
+  const [selectedData, setSelectData] = useState<MoneyData>();
+
+  // 編集モーダルの開閉状態を管理
+  const [editModalIsOpen, setIsEditModalOpen] = useState(false);
+
+  // 新規追加モーダルの開閉状態を管理
+  const [addModalIsOpen, setIsAddModalOpen] = useState(false);
+  // ユーザーホームデータの状態を管理
+  const [userHomeList, setUserHomelist] = useState(userHomeData);
+
   const navigate = useNavigate();
+
+  //編集アイコン押下
+  const handleEditClick = (moneyData: MoneyData) => {
+    console.log("編集アイコンが押されました", moneyData);
+    setSelectData(moneyData);
+    setIsEditModalOpen(true);
+  };
+
+  //編集保存
+  const handleSave = (updatedData: MoneyData) => {
+    const updatelist = userHomeList.map((item) =>
+      item.title === updatedData.title ? updatedData : item
+    );
+    setUserHomelist(updatelist);
+    setIsEditModalOpen(false);
+  };
+
+  // 新規追加ボタン押下
+  const handleAddMoney = (newData: MoneyData) => {
+    setUserHomelist([...userHomeList, newData]);
+    setIsAddModalOpen(false);
+    alert("新しい出費データを作成しました");
+  };
+
+  // ログアウト関数
   const logout = () => {
     navigate("/login");
   };
+  // ユーザーデータを取得するためのuseEffect
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     const nickname = localStorage.getItem("nickname");
@@ -74,26 +125,54 @@ const Home = () => {
         console.error("fetchに失敗しました:", error);
       });
   }, []);
-  const navgeteEdit = () => {
-    navigate("/edit");
-  };
+
   return (
     <>
       <Header />
       <h2>ようこそ、{user?.nickname}さん</h2>
       <h3>最近の支出</h3>
 
-      {userHomeData.map((data, index) => (
+      {userHomeList.map((moneyData, index) => (
         <div key={index} className="home-data">
           <div className="home-box">
-            <h4>{data.category}</h4>
-            <p>金額: {data.money}円</p>
-            <p>タイトル: {data.title}</p>
-            <p>コメント: {data.money_comment}</p>
-            <FaPen onClick={navgeteEdit} />
+            <h4>{moneyData.category}</h4>
+            <p>金額: {moneyData.money}円</p>
+            <p>タイトル: {moneyData.title}</p>
+            <p>コメント: {moneyData.money_comment}</p>
+            <FaPen
+              onClick={() => handleEditClick(moneyData)}
+              style={{ fontSize: "20px" }}
+            />
           </div>
         </div>
       ))}
+      <IoIosAddCircle className="addbutton" onClick={() => handleAddMoney} />
+
+      <ModalModel
+        isOpen={editModalIsOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      >
+        {selectedData && (
+          <EditMoneyForm moneyData={selectedData} onSave={handleSave} />
+        )}
+      </ModalModel>
+
+      <ModalModel
+        isOpen={addModalIsOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      >
+        {userHomeData && (
+          <AddMoneyForm
+            moneyData={{
+              money: 0,
+              category: "",
+              title: "",
+              money_comment: "",
+            }}
+            onSave={(newData) => handleAddMoney(newData)}
+          />
+        )}
+      </ModalModel>
     </>
   );
 };
