@@ -16,3 +16,5 @@ class addMoneySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return home_money.objects.create(**validated_data)
     
+
+    

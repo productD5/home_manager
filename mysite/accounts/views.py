@@ -5,6 +5,7 @@ from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer
 from .models import User
 from rest_framework.permissions import AllowAny 
 from rest_framework.generics import GenericAPIView
+from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -32,7 +33,6 @@ class RegisterView(APIView):
 class LoginView(GenericAPIView):
     """ログイン"""
     serializer_class = LoginSerializer
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
             # クライアントエラーチェック
@@ -45,11 +45,14 @@ class LoginView(GenericAPIView):
 
             try:
                 # トークンを生成
-                token = AccessToken.create(user)
+                token, created =Token.objects.get_or_create(user=user)
+                if created:
+                    token.save()
             except Exception as e:
+                print(f"Token generation error: {str(e)}")
                 return Response({'error': 4, 'message': f'Token generation failed: {str(e)}'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response({'detail': "ログインが成功しました", 'error': 0, 'token': token.token, 'user_id': user.user_id})
+            return Response({'detail': "ログインが成功しました", 'error': 0, 'token': token.key, 'user_id': user.user_id})
         return Response({'error': 3, 'message': 'Invalid credentials'}, status=HTTP_400_BAD_REQUEST)
     
 
@@ -57,7 +60,7 @@ class UserDetailView(APIView):
     """ユーザー情報取得"""
     def get(self,request, user_id):
         #ユーザー情報の取得
-        user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う)
+        user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う))
         if not user:
             #userが存在しない場合
             return Response({"messerge":"Not User found"},status=404)

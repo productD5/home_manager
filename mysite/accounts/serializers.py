@@ -40,7 +40,6 @@ class LoginSerializer(serializers.Serializer):
         if not user.check_password(password):
             #パスワードが一致しない場合
             raise serializers.ValidationError("user_idかパスワードが正しくありません")
-
         return data
 
 
