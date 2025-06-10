@@ -1,6 +1,6 @@
 // src/components/Header.tsx
 import React from "react";
-import "../style/header.css"; // CSSをインポート
+import "@/components/styles/header.css";
 
 const Header = () => {
   return (
