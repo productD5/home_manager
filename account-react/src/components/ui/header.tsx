@@ -5,7 +5,7 @@ import "@/components/styles/header.css";
 const Header = () => {
   return (
     <header className="header">
-      <div className="logo">家計簿app</div>
+      <div className="logo">みんなで家計簿</div>
     </header>
   );
 };
