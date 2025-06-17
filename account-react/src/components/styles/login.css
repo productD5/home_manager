@@ -27,6 +27,12 @@
     height: 60px;        
     font-size: 18px;
   }
+  .logout-icon {
+    font-size: 24px;
+    color: #a30000;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
 
   
 

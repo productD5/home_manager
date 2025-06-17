@@ -10,7 +10,9 @@ import { IoIosAddCircle } from "react-icons/io";
 import ModalModel from "@/components/ui/ModalModel";
 import EditMoneyForm from "@/features/home/EditMoneyForm";
 import AddMoneyForm from "@/features/home/AddMoneyForm";
-
+import { MdOutlineExitToApp } from "react-icons/md";
+import { Link } from "react-router-dom";
+import { paths } from "@/config/paths";
 interface User {
   user_id: string;
   nickname: string;
@@ -98,11 +100,11 @@ const Home = () => {
   const logout = () => {
     navigate("/login");
   };
+
   // ユーザーデータを取得するためのuseEffect
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     const nickname = localStorage.getItem("nickname");
-
     console.log(user_id);
     if (!user_id) {
       alert("ログインしてください");
@@ -110,7 +112,6 @@ const Home = () => {
       return;
     }
 
-    console.log(user_id);
     const apipath = "http://localhost:8000/accounts/users/" + user_id + "/";
     axios
       .get(apipath)
@@ -122,13 +123,18 @@ const Home = () => {
         }
       })
       .catch((error) => {
-        console.error("fetchに失敗しました:", error);
+        console.error("ユーザー情報の取得に失敗しました:");
+        alert("ユーザー情報の取得に失敗しました。ログインしてください。");
+        logout();
       });
   }, []);
 
   return (
     <>
       <Header />
+      <Link to={paths.Welcome.getHref()} className="logout-link">
+        <MdOutlineExitToApp className="logout-icon" size={30} />
+      </Link>
       <h2>ようこそ、{user?.nickname}さん</h2>
       <h3>最近の支出</h3>
 
