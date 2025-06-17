@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/ui/header";
 import { GoArrowLeft } from "react-icons/go";
 import { Link } from "react-router-dom";
-import { paths } from "../../config/paths";
+import { paths } from "@/config/paths";
 import "@/components/styles/form.css";
 
 const Login = () => {
@@ -22,19 +22,14 @@ const Login = () => {
         password: password,
       })
       .then((response) => {
-        if (response.status === 200) {
-          // ログイン成功時の処理
-          localStorage.setItem("nickname", response.data.nickmane);
-          localStorage.setItem("user_id", response.data.user_id);
-          alert("ログイン成功");
-          navigate("/home"); //ログイン成功後にリダイレクト
-        } else {
-          alert(
-            "ログインに失敗しました。ユーザーIDまたはパスワードが正しいか確認してください。"
-          );
-        }
+        // ログイン成功時の処理
+        localStorage.setItem("nickname", response.data.nickmane);
+        localStorage.setItem("user_id", response.data.user_id);
+        alert("ログイン成功");
+        navigate("/home"); //ログイン成功後にリダイレクト
       })
       .catch((error) => {
+        alert("ログインに失敗しました、IDとパスワードを確認してください");
         setError("ログインに失敗しました。");
       });
   };
