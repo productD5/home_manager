@@ -1,11 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
-from django.utils import timezone
+
 class UserManager(BaseUserManager):
     def create_user(self, user_id, password=None, **extra_fields):
         if not user_id:
             raise ValueError('ユーザーIDは必須です')
-        user = self.model(user_id=user_id, **extra_fields)
+        user = User(user_id=user_id, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(user_id, password, **extra_fields)
-    
+
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     user_id = models.CharField(max_length=30, unique=True)
@@ -28,7 +28,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'user_id'
     REQUIRED_FIELDS = ['email']
-
+    
     def __str__(self):
         return self.user_id
-
