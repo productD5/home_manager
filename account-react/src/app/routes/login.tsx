@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/ui/header";
@@ -22,9 +22,9 @@ const Login = () => {
         password: password,
       })
       .then((response) => {
-        // ログイン成功時の処理
-        localStorage.setItem("nickname", response.data.nickmane);
-        localStorage.setItem("user_id", response.data.user_id);
+        // ログイン成功時の処理]
+        sessionStorage.setItem("user_id", response.data.user_id);
+        sessionStorage.setItem("nickname", response.data.nickname);
         alert("ログイン成功");
         navigate("/home"); //ログイン成功後にリダイレクト
       })
@@ -33,6 +33,13 @@ const Login = () => {
         setError("ログインに失敗しました。");
       });
   };
+  useEffect(() => {
+    // ユーザーIDがセッションストレージに存在する場合、ホーム画面にリダイレクト
+    const user_id = sessionStorage.getItem("user_id");
+    if (user_id) {
+      navigate("/home");
+    }
+  }, []);
   return (
     <>
       <Header />
