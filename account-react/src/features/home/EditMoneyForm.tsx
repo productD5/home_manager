@@ -1,7 +1,9 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 type EditProps = {
   moneyData: {
+    money_id: number;
     money: number;
     category: string;
     title: string;
@@ -25,7 +27,26 @@ const EditMoneyForm: React.FC<EditProps> = ({ moneyData, onSave }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault(); // フォームのデフォルトの送信動作を防ぐ(ページを再読み込みしない)
-    onSave(formData); // 編集されたデータを親コンポーネントに渡す
+
+    const apiPath =
+      "http://localhost:8000/home_manager/editMoney/" + moneyData.money_id;
+    // APIにデータを送信
+    console.log("APIパス:", apiPath);
+    axios
+      .put(apiPath, {
+        money_id: moneyData.money_id,
+        money: formData.money,
+        category: formData.category,
+        title: formData.title,
+        money_comment: formData.money_comment,
+      })
+      .then((response) => {
+        console.log("データが更新されました", response.data);
+        onSave(formData); // 編集されたデータを親コンポーネントに渡す
+      })
+      .catch((error) => {
+        console.error("データの更新に失敗しました", error);
+      });
   };
   return (
     <form onSubmit={handleSubmit}>
