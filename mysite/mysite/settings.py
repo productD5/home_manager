@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     "accounts", #認証アプリ
     "home_manager", #家計簿アプリ
     "rest_framework" ,#add rest
-    "rest_framework.authtoken", #add rest
+    "rest_framework.authtoken", #トークン認証追加
     "corsheaders", #add corsheaders 別のサーバーからのアクセスを許可するために必要
 ]
 
@@ -72,8 +73,9 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'mysite.wsgi.application'
+
+
 
 
 # Database
@@ -108,7 +110,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', #トークン認証を使用
+    ],
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -136,3 +142,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User' #ユーザーモデルの指定
 
 DEBUG = True
+
+
