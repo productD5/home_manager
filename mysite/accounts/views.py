@@ -1,16 +1,20 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
-from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED,HTTP_200_OK,HTTP_401_UNAUTHORIZED
+from .serializers import RegisterSerializer,LoginSerializer,UserUpdateSerializer, UserDetailSerializer
 from .models import User
-from rest_framework.permissions import AllowAny 
 from rest_framework.generics import GenericAPIView
-from rest_framework.authtoken.models import Token
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from datetime import timedelta
+from django.utils import timezone
 
+
+"""新規登録"""
 class RegisterView(APIView):
-    """新規登録"""
+    
+    authentication_classes = []
     @staticmethod
     def post(request, *args, **kwargs):
         serializer = RegisterSerializer(data=request.data) #シリアライザをインスタンス化
@@ -30,68 +34,104 @@ class RegisterView(APIView):
             return Response(serializer.data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
     
+"""ログイン"""
 class LoginView(GenericAPIView):
-    """ログイン"""
+    
+    authentication_classes = []
+
     serializer_class = LoginSerializer
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-            # クライアントエラーチェック
+        serializer = self.get_serializer(data = request.data)
+
         if serializer.is_valid(raise_exception=True):
-            try:
-                # UserオブジェクトをDBから取得
-                user = User.objects.get(user_id=serializer.validated_data['user_id'])
-            except ObjectDoesNotExist:
-                return Response({'error': 2, 'message': 'User not found'}, status=HTTP_400_BAD_REQUEST)
+            user_id = serializer.validated_data['user_id']
+            password = serializer.validated_data['password']
 
-            try:
-                # トークンを生成
-                token, created =Token.objects.get_or_create(user=user)
-                if created:
-                    token.save()
-            except Exception as e:
-                print(f"Token generation error: {str(e)}")
-                return Response({'error': 4, 'message': f'Token generation failed: {str(e)}'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            #ユーザー認証
+            user = authenticate(request, username = user_id, password = password)
 
-            return Response({'detail': "ログインが成功しました", 'error': 0, 'token': token.key, 'user_id': user.user_id})
-        return Response({'error': 3, 'message': 'Invalid credentials'}, status=HTTP_400_BAD_REQUEST)
+            if user is None:
+                return Response({'error':2, 'message': '認証失敗'})
+            token, created = Token.objects.get_or_create(user=user)  # トークンを取得または作成
+            if not created:
+                # トークンが既に存在する場合は、トークンを更新
+                token.delete()
+                token = Token.objects.create(user=user)
+
+            #ログイン成功
+            return Response({
+                'detail': 'ログイン成功',
+                'error': 0,
+                'message': 'ログインに成功しました',
+                'token': token.key,
+                'nickname': user.nickname,
+                'user_id':user.user_id,
+            },status=HTTP_200_OK)
+        
+        return Response( serializer.errors, status=HTTP_400_BAD_REQUEST )
+    
+"""ユーザー情報取得"""
+class UserDetailView(APIView):
     
 
-class UserDetailView(APIView):
-    """ユーザー情報取得"""
     def get(self,request, user_id):
+        TOKEN_LIFETIME_MINUTES = 5  # トークンの有効期限（分）
+
         #ユーザー情報の取得
-        user = User.objects.filter(user_id = user_id).first() #一件目を取得(ここで属性の評価を行う))
-        if not user:
-            #userが存在しない場合
-            return Response({"messerge":"Not User found"},status=404)
-        else:
-            response_date ={
-                "message": "User details by user_id",
-                "user":{
-                "user_id": user.user_id,
-                "nickname": user.nickname,
-                "comment" :user.comment
-                }
-            }
-            return Response(response_date,status=200)
+        try:
+            user = User.objects.get(user_id = user_id) #user_idでユーザーを取得
+            print(user)
+
+        except User.DoesNotExist:
+            return Response({"message":"Not User found"},status=404)
+        
+        #トークン状態を確認
+        try:
+            token = Token.objects.get(user=user) #userに紐づくトークンを取得
+
+        except Token.DoesNotExist:
+            # トークンが存在しない場合
+            return Response({"message": "Token does not exist"}, status=HTTP_401_UNAUTHORIZED)
+        
+        if (token.created + timedelta(minutes = TOKEN_LIFETIME_MINUTES)) < timezone.now() :
+            # トークンが期限切れの場合
+            token.delete()
+            return Response({"message": "Token is expired"}, status=HTTP_401_UNAUTHORIZED)
+        
+        serializer = UserDetailSerializer(user)  # シリアライザーを使用
+        response_data = {
+            "message": "User details by user_id",
+            "user": serializer.data
+        }
+        return Response(response_data, status=HTTP_200_OK)
 
 
-
+"""ユーザー情報更新"""
 class UserUpdateView(APIView):
-    """ユーザー情報更新"""
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
     def patch(self ,request, user_id):
         #ユーザー情報取得
-        user= User.objects.filter(user_id = user_id).first()
+        try:
+            user = User.objects.get(user_id = user_id)
 
-        if not user:
+        except User.DoesNotExist:
             #ユーザーが存在しない場合
             return Response({"message": "No User found"}, status=404)
         
-        if request.user.user_id != user_id:
-            #異なるIDだった場合
-            return Response({"message": "No permission for Update"}, status=403)
+        try:
+            token = Token.objects.get(user=user)  # userに紐づくトークンを取得
+        except Token.DoesNotExist:
+            # トークンが存在しない場合
+            return Response({"message": "Token does not exist"}, status=HTTP_401_UNAUTHORIZED)
+        
+        #トークンの有効期限チェック
+        TOKEN_LIFETIME_MINUTES = 100  # トークンの有効期限（分）
+        
+        if (token.created + timedelta(minutes=TOKEN_LIFETIME_MINUTES)) < timezone.now():
+            # トークンが期限切れの場合
+            token.delete()
+            return Response({"message": "Token is expired"}, status=HTTP_401_UNAUTHORIZED)
+            
         
         serialazer =  UserUpdateSerializer(user, data=request.data, partial=True)
         #データが正しいかの検証(値が正しいか等)
@@ -117,11 +157,11 @@ class UserUpdateView(APIView):
     def post(self ,request, user_id):
         return Response({"message": "Methop not allowed"}, status=400)
     
-
+"""アカウント削除"""
 class CloseAccountView(APIView):
-    """アカウント削除"""
-    authentication_classes = [TokenAuthentication]
+    
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, user_id):
         #アカウント削除処理
         user = User.objects.filter(user_id=user_id).first()

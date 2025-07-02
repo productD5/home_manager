@@ -36,18 +36,23 @@ class LoginSerializer(serializers.Serializer):
             user = User.objects.get(user_id=user_id)
         except User.DoesNotExist:
             raise serializers.ValidationError("user_idかパスワードが正しくありません!")
-
-        if not user.check_password(password):
-            #パスワードが一致しない場合
+        #パスワードチェック
+        print(user.password)
+        if  not user.check_password(password):
             raise serializers.ValidationError("user_idかパスワードが正しくありません")
         return data
 
+#ユーザー情報取得シリアライザ
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('user_id','nickname')
 
 #ユーザー情報更新シリアライザ
 class UserUpdateSerializer(serializers.Serializer):
     nickname = serializers.CharField(max_length=30, allow_blank=True)
     comment = serializers.CharField(max_length=100, allow_blank=True)
-    
+
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname',instance.nickname)
