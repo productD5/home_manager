@@ -1,3 +1,4 @@
+/* 背景 */
 .modal-overlay{
     position:fixed;
     top:0;
@@ -10,7 +11,7 @@
     align-items: center;
     z-index:1000;
 }
-
+/* モーダル中身 */
 .modal-content{
     background: white;
     padding: 20px;
@@ -21,7 +22,7 @@
     position: relative;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-
+/* 閉じるボタン */
 .modal-close{
     position: absolute;
     top: 10px;
