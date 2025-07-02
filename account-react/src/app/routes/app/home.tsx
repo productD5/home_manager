@@ -6,60 +6,28 @@ import "@/components/styles/home.css";
 
 import { FaPen } from "react-icons/fa";
 import { IoIosAddCircle } from "react-icons/io";
+import { FaTrash } from "react-icons/fa6";
 
 import ModalModel from "@/components/ui/ModalModel";
 import EditMoneyForm from "@/features/home/EditMoneyForm";
 import AddMoneyForm from "@/features/home/AddMoneyForm";
-import { MdOutlineExitToApp } from "react-icons/md";
-import { Link } from "react-router-dom";
-import { paths } from "@/config/paths";
-interface User {
-  user_id: string;
-  nickname: string;
-  email: string;
-  comment: string;
-}
+import { MdOutlineDataArray, MdOutlineExitToApp } from "react-icons/md";
+import DeleteModal from "@/features/home/DeleteModal";
+import CategoryFilter from "@/features/home/CategoryDatafilter";
 
 type MoneyData = {
+  money_id: number;
   money: number;
   category: string;
   title: string;
   money_comment: string;
 };
+
 const Home = () => {
-  const userHomeData = [
-    {
-      money: 1800,
-      category: "食費",
-      title: "朝ごはん",
-      money_comment: "パンとコーヒー",
-    },
-    {
-      money: 4500,
-      category: "日用品",
-      title: "ドラッグストア",
-      money_comment: "洗剤とトイレットペーパー",
-    },
-    {
-      money: 12000,
-      category: "交通費",
-      title: "定期券購入",
-      money_comment: "通勤用6ヶ月定期",
-    },
-    {
-      money: 3000,
-      category: "趣味",
-      title: "映画",
-      money_comment: "映画鑑賞とポップコーン",
-    },
-    {
-      money: 8000,
-      category: "交際費",
-      title: "飲み会",
-      money_comment: "会社の歓迎会",
-    },
-  ];
-  const [user, setUser] = useState<User | null>(null);
+  // ユーザーのニックネームを管理
+  // 初期値はゲスト
+  const [nickname, setNickname] = useState<string>("gest");
+
   // 選択されたデータを管理
   const [selectedData, setSelectData] = useState<MoneyData>();
 
@@ -68,10 +36,19 @@ const Home = () => {
 
   // 新規追加モーダルの開閉状態を管理
   const [addModalIsOpen, setIsAddModalOpen] = useState(false);
+
+  // 削除モーダルの開閉状態を管理
+  const [deleteModalIsOpen, setIsDeleteModalOpen] = useState(false);
+
   // ユーザーホームデータの状態を管理
-  const [userHomeList, setUserHomelist] = useState(userHomeData);
+  const [userHomeList, setUserHomelist] = useState<MoneyData[]>([]);
+
+  //選択したカテゴリーを管理
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const navigate = useNavigate();
+  //ユニークなcategoryの一覧
+  const categorys = Array.from(new Set(userHomeList.map((c) => c.category)));
 
   //編集アイコン押下
   const handleEditClick = (moneyData: MoneyData) => {
@@ -81,101 +58,180 @@ const Home = () => {
   };
 
   //編集保存
-  const handleSave = (updatedData: MoneyData) => {
-    const updatelist = userHomeList.map((item) =>
-      item.title === updatedData.title ? updatedData : item
+  const handleUpdateSave = (updatedData: MoneyData) => {
+    if (!userHomeList) {
+      console.error("ユーザーホームリストが未定義です");
+      return;
+    }
+    // 編集されたデータを更新
+    const updatedList = userHomeList.map((data) =>
+      data.money_id === updatedData.money_id ? updatedData : data
     );
-    setUserHomelist(updatelist);
+    setUserHomelist(updatedList);
     setIsEditModalOpen(false);
   };
 
   // 新規追加ボタン押下
-  const handleAddMoney = (newData: MoneyData) => {
-    setUserHomelist([...userHomeList, newData]);
-    setIsAddModalOpen(false);
-    alert("新しい出費データを作成しました");
+  const handleAddMoney = () => {
+    console.log("新規追加ボタンが押されました");
+    setIsAddModalOpen(true);
   };
 
+  // 新規保存の追加ボタン押下
+  const handleAddMoneySave = (newData: MoneyData) => {
+    if (!userHomeList) {
+      setUserHomelist([newData]);
+      setIsAddModalOpen(false);
+      console.log("新しい" + userHomeList);
+      return;
+    } else {
+      setUserHomelist([...userHomeList, newData]);
+      setIsAddModalOpen(false);
+      alert("新しい出費データを作成しました");
+      console.log("追加データ" + userHomeList);
+    }
+  };
+
+  const handleDeleteMoney = (Deletemoney: MoneyData) => {
+    console.log("削除アイコンが押されました", Deletemoney);
+    // 削除モーダルを開く
+    setSelectData(Deletemoney);
+    setIsDeleteModalOpen(true);
+  };
   // ログアウト関数
   const logout = () => {
-    navigate("/login");
+    sessionStorage.removeItem("user_id");
+    sessionStorage.removeItem("nickname");
+    navigate("/");
   };
+
+  //カテゴリーフィルター
+  const showUserData = selectedCategory
+    ? userHomeList.filter((c) => c.category === selectedCategory)
+    : userHomeList;
 
   // ユーザーデータを取得するためのuseEffect
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    const nickname = localStorage.getItem("nickname");
-    console.log(user_id);
+    const user_id = sessionStorage.getItem("user_id");
+    const nickname = sessionStorage.getItem("nickname");
+
+    setNickname(nickname || "ゲスト");
     if (!user_id) {
-      alert("ログインしてください");
+      alert("ユーザーIDが見つかりません。ログインしてください。");
       logout();
       return;
     }
-
-    const apipath = "http://localhost:8000/accounts/users/" + user_id + "/";
+    console.log("ユーザーID:", user_id);
+    const apiUrl = "http://localhost:8000/home_manager/view/" + user_id;
     axios
-      .get(apipath)
+      .get(apiUrl)
       .then((response) => {
         if (response.status === 200) {
-          setUser(response.data.user);
+          if (response.data.length === 0) {
+            console.log("データが存在しません");
+            setUserHomelist([]);
+          }
+          setUserHomelist(response.data);
         } else {
-          console.error("Failed to fetch user data");
+          console.error("データの取得に失敗しました", response.status);
+          alert("データの取得に失敗しました。再度ログインしてください。");
+          logout();
         }
       })
       .catch((error) => {
-        console.error("ユーザー情報の取得に失敗しました:");
-        alert("ユーザー情報の取得に失敗しました。ログインしてください。");
+        console.error("データの取得中にエラーが発生しました", error);
+        alert(
+          "データの取得中にエラーが発生しました。再度ログインしてください。"
+        );
         logout();
       });
   }, []);
-
   return (
     <>
       <Header />
-      <Link to={paths.Welcome.getHref()} className="logout-link">
-        <MdOutlineExitToApp className="logout-icon" size={30} />
-      </Link>
-      <h2>ようこそ、{user?.nickname}さん</h2>
+      <MdOutlineExitToApp
+        className="logout-icon"
+        onClick={() => logout()}
+        size={50}
+      />
+      <h2>ようこそ、{nickname}さん</h2>
       <h3>最近の支出</h3>
+      {/* userHomeListが存在していたら表示する */}
+      <div className="home-space">
+        {/* カテゴリーフィルター */}
+        <CategoryFilter
+          categorys={categorys}
+          onCategoryChange={setSelectedCategory}
+        />
 
-      {userHomeList.map((moneyData, index) => (
-        <div key={index} className="home-data">
-          <div className="home-box">
-            <h4>{moneyData.category}</h4>
-            <p>金額: {moneyData.money}円</p>
-            <p>タイトル: {moneyData.title}</p>
-            <p>コメント: {moneyData.money_comment}</p>
-            <FaPen
-              onClick={() => handleEditClick(moneyData)}
-              style={{ fontSize: "20px" }}
-            />
-          </div>
+        <div className="home-data">
+          {showUserData && showUserData.length != 0 ? (
+            // 支出データがある場合表示
+            showUserData.map((moneyData, index) => (
+              <div key={index}>
+                <div className="home-box">
+                  {/* 支出データの表示 */}
+                  <h4>{moneyData.title}</h4>
+                  {/* 編集ボタン */}
+                  <FaPen
+                    className="editbutton"
+                    onClick={() => handleEditClick(moneyData)}
+                  />
+                  <p>金額: {moneyData.money}円</p>
+                  <p>カテゴリー:{moneyData.category}</p>
+                  <p>コメント: {moneyData.money_comment}</p>
+
+                  {/* 削除ボタン */}
+                  <FaTrash
+                    className="trash-button"
+                    onClick={() => handleDeleteMoney(moneyData)}
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
+            // 支出データが存在しない場合
+            <div> 支出データが存在しません </div>
+          )}
         </div>
-      ))}
-      <IoIosAddCircle className="addbutton" onClick={() => handleAddMoney} />
-
+      </div>
+      {/* 新規追加ボタン */}
+      <IoIosAddCircle className="addbutton" onClick={() => handleAddMoney()} />
+      {/* 編集モーダル */}
       <ModalModel
         isOpen={editModalIsOpen}
         onClose={() => setIsEditModalOpen(false)}
       >
         {selectedData && (
-          <EditMoneyForm moneyData={selectedData} onSave={handleSave} />
+          <EditMoneyForm moneyData={selectedData} onSave={handleUpdateSave} />
         )}
       </ModalModel>
-
+      {/* 新規追加モーダル */}
       <ModalModel
         isOpen={addModalIsOpen}
         onClose={() => setIsAddModalOpen(false)}
       >
-        {userHomeData && (
-          <AddMoneyForm
-            moneyData={{
-              money: 0,
-              category: "",
-              title: "",
-              money_comment: "",
-            }}
-            onSave={(newData) => handleAddMoney(newData)}
+        <AddMoneyForm
+          moneyData={{
+            money_id: 0, // 新規作成なので0に設定
+            money: 0,
+            category: "",
+            title: "",
+            money_comment: "",
+          }}
+          onSave={(newData) => handleAddMoneySave(newData)}
+        />
+      </ModalModel>
+
+      {/* 出費データ削除確認 */}
+      <ModalModel
+        isOpen={deleteModalIsOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+      >
+        {selectedData && (
+          <DeleteModal
+            moneyData={selectedData}
+            onClose={() => setIsDeleteModalOpen(false)}
           />
         )}
       </ModalModel>
