@@ -1,2 +1,2 @@
-# auth-API
-Djangoを使った認証APIです
+# home_manager
+現在作成中...進捗はdevelopを参照
